@@ -1,11 +1,13 @@
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, User } from "lucide-react";
+import { Button } from "./button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -26,7 +28,7 @@ export function Navbar() {
             <Link
               to="/"
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/') ? 'text-primary' : 'text-muted-foreground'
+                isActive("/") ? "text-primary" : "text-muted-foreground"
               }`}
             >
               Home
@@ -34,30 +36,49 @@ export function Navbar() {
             <Link
               to="/browse"
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/browse') ? 'text-primary' : 'text-muted-foreground'
+                isActive("/browse") ? "text-primary" : "text-muted-foreground"
               }`}
             >
               Browse
             </Link>
-            <Link
-              to="/login"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/login') ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              Login
-            </Link>
-            <Button variant="default" size="sm" asChild>
-              <Link to="/signup">Sign Up</Link>
-            </Button>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <User size={16} />
+                  <span className="text-sm text-muted-foreground">
+                    {user.email}
+                  </span>
+                </div>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive("/login") ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  Login
+                </Link>
+                <Button variant="default" size="sm" asChild>
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
           <button
             className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => setIsOpen(!isOpen)}
           >
-            {isMenuOpen ? (
+            {isOpen ? (
               <X className="h-6 w-6" />
             ) : (
               <Menu className="h-6 w-6" />
@@ -65,39 +86,68 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4">
-            <Link
-              to="/"
-              className={`block text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/') ? 'text-primary' : 'text-muted-foreground'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/browse"
-              className={`block text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/browse') ? 'text-primary' : 'text-muted-foreground'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Browse
-            </Link>
-            <Link
-              to="/login"
-              className={`block text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/login') ? 'text-primary' : 'text-muted-foreground'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Login
-            </Link>
-            <Button variant="default" size="sm" className="w-full" asChild>
-              <Link to="/signup" onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
-            </Button>
+        {isOpen && (
+          <div className="md:hidden border-t border-border">
+            <nav className="px-4 py-4 space-y-4">
+              <Link
+                to="/"
+                className={`block text-base font-medium transition-colors hover:text-primary ${
+                  isActive("/") ? "text-primary" : "text-muted-foreground"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                Home
+              </Link>
+              <Link
+                to="/browse"
+                className={`block text-base font-medium transition-colors hover:text-primary ${
+                  isActive("/browse") ? "text-primary" : "text-muted-foreground"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                Browse
+              </Link>
+              <div className="pt-4 border-t border-border space-y-4">
+                {user ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <User size={16} />
+                      <span className="text-sm text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full" 
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }}
+                    >
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className={`block text-base font-medium transition-colors hover:text-primary ${
+                        isActive("/login") ? "text-primary" : "text-muted-foreground"
+                      }`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Button variant="default" size="sm" className="w-full" asChild>
+                      <Link to="/signup" onClick={() => setIsOpen(false)}>
+                        Sign Up
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </nav>
           </div>
         )}
       </div>
